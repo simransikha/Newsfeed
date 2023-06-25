@@ -1,8 +1,17 @@
 import React, { Component } from 'react'
 import NewsItem from './NewsItem'
+import PropTypes from 'prop-types'
 
  export class News extends Component {
+  static defaultProps = {
+    country: 'in',
+    category: 'general',
 
+  }
+ static PropsTypes = {
+  country: PropTypes.string,
+    category: PropTypes.string,
+  }
   constructor(){
     super();
     this.state = {
@@ -12,7 +21,7 @@ import NewsItem from './NewsItem'
     }
   }
  async componentDidMount(){
-    let url = " https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=9dcb6e136a894b458c97bf906a896233";
+    let url = " https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=9dcb6e136a894b458c97bf906a896233";
     
     let data = await fetch(url);
     let parsedData = await data.json()
@@ -21,7 +30,7 @@ import NewsItem from './NewsItem'
   }
   handleNextClick = async()=>{
     console.log("Next");      
-    let url = `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=9dcb6e136a894b458c97bf906a896233&page=${this.state.page + 1}`;
+    let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=9dcb6e136a894b458c97bf906a896233&page=${this.state.page + 1}`;
     
     let data = await fetch(url);
     let parsedData = await data.json()
@@ -36,7 +45,7 @@ import NewsItem from './NewsItem'
     console.log("Previous")
    
               
-    let url = `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=9dcb6e136a894b458c97bf906a896233&page=${this.state.page + 1}`;
+    let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=9dcb6e136a894b458c97bf906a896233&page=${this.state.page + 1}`;
     
     let data = await fetch(url);
     let parsedData = await data.json()
@@ -51,7 +60,7 @@ import NewsItem from './NewsItem'
   render() {
     return (
       <div className="container my-3">
-        <h2>NewsFeed - Top Headlines</h2>
+        <h2 className="text-center">NewsFeed - Top Headlines</h2>
 
         <div className="row">    
          {this.state.articles.map((element)=>{
