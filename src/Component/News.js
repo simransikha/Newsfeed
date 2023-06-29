@@ -1,66 +1,63 @@
 import React, { Component } from 'react'
 import NewsItem from './NewsItem'
 import PropTypes from 'prop-types'
+import axios from 'axios'
 
- export class News extends Component {
+ class News extends React.Component {
   static defaultProps = {
     country: 'in',
     category: 'general',
+    pageSize: 8,
 
   }
  static PropsTypes = {
   country: PropTypes.string,
     category: PropTypes.string,
+    pageSize: PropTypes.number,
   }
-  constructor(){
-    super();
+  constructor(props){
+    super(props);
     this.state = {
      articles: [],
      loading: false,
      page: 1
+     
     }
+    document.title = this.props.category;
+  }
+
+  async updateNews(){
+    const url =  `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=9dcb6e136a894b458c97bf906a896233&page=${this.state.page}&pageSize=${this.props.pagesize}`;
+    this.setState({loading: true});
+    let data = await fetch(url);
+    let parsedData = await data.json()
+    this.setState({articles: parsedData.articles,
+    totalResult: parsedData.totalResult,
+  loading: false})
+
   }
  async componentDidMount(){
-    let url = " https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=9dcb6e136a894b458c97bf906a896233";
-    
-    let data = await fetch(url);
-    let parsedData = await data.json()
-    console.log(parsedData);
-    this.setState({articles: parsedData.articles})
+   this.updateNews();
+
   }
   handleNextClick = async()=>{
-    console.log("Next");      
-    let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=9dcb6e136a894b458c97bf906a896233&page=${this.state.page + 1}`;
-    
-    let data = await fetch(url);
-    let parsedData = await data.json()
-    console.log(parsedData);;
-    this.setState({
 
-          page: this.state.page + 1,
-          articles: parsedData.articles
-        })
+    this.setState({page: this.statepage + 1});
+    this.updateNews();
   }
   handlePrevClick = async()=>{
-    console.log("Previous")
    
-              
-    let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=9dcb6e136a894b458c97bf906a896233&page=${this.state.page + 1}`;
-    
-    let data = await fetch(url);
-    let parsedData = await data.json()
-    console.log(parsedData);
-    this.setState({
-
-          page: this.state.page - 1,
-          articles: parsedData.articles
-        })
+    this.setState({page: this.statepage - 1});
+    this.updateNews();
+  }
+  capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
   }
     
   render() {
     return (
       <div className="container my-3">
-        <h2 className="text-center">NewsFeed - Top Headlines</h2>
+        <h2 className="text-center">NewsFeed - Top {this.capitalizeFirstLetter(this.props.category)} Headlines</h2>
 
         <div className="row">    
          {this.state.articles.map((element)=>{
@@ -71,8 +68,8 @@ import PropTypes from 'prop-types'
         })}
     </div>
     <div className="container d-flex justify-content-between">
-    <button disabled={this.state.page<=1} type="button" class="btn btn-dark" onClick={this.handlePrevClick}>&larr; Previous</button>
-    <button type="button" class="btn btn-dark" onClick={this.handleNextClick}>Next &larr;</button>
+    <button disabled={this.state.page<=1} type="button" class="btn btn-dark" onClick={this.handlePrevClick}> Previous</button>
+    <button type="button" class="btn btn-dark" onClick={this.handleNextClick}>Next </button>
     </div>
     </div>
     )
