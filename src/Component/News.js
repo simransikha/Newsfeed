@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import NewsItem from './NewsItem'
 import PropTypes from 'prop-types'
 import axios from 'axios'
+import InfiniteScroll from "react-infinite-scroll-component"
 
  class News extends React.Component {
   static defaultProps = {
@@ -20,7 +21,8 @@ import axios from 'axios'
     this.state = {
      articles: [],
      loading: false,
-     page: 1
+     page: 1,
+     totalResults: 0
      
     }
     document.title = this.props.category;
@@ -33,7 +35,8 @@ import axios from 'axios'
     let parsedData = await data.json()
     this.setState({articles: parsedData.articles,
     totalResult: parsedData.totalResult,
-  loading: false})
+  loading: false,
+})
 
   }
  async componentDidMount(){
@@ -53,12 +56,30 @@ import axios from 'axios'
   capitalizeFirstLetter = (string) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
+  fetchMoreData = async () => {
+      this.setState({page: this.state.page + 1})
+      const url =  `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=9dcb6e136a894b458c97bf906a896233&page=${this.state.page}&pageSize=${this.props.pagesize}`;
+    this.setState({loading: true});
+    let data = await fetch(url);
+    let parsedData = await data.json()
+    this.setState
+    ({articles:this.state.articles.concat( parsedData.articles),
+    totalResult: parsedData.totalResult,
+  loading: false,
+    })
+  };
     
   render() {
     return (
-      <div className="container my-3">
+      <>
         <h2 className="text-center">NewsFeed - Top {this.capitalizeFirstLetter(this.props.category)} Headlines</h2>
-
+        <InfiniteScroll
+          dataLength={this.state.articles.length}
+          next={this.fetchMoreData}
+          hasMore={this.state.articles.length !== this.state.totalResults}
+          loader={<h4> ...Loading...</h4>}
+        >
+            <div className="container">
         <div className="row">    
          {this.state.articles.map((element)=>{
             return <div className="col-md-4" key={element.url}>
@@ -66,12 +87,11 @@ import axios from 'axios'
            </div>
 
         })}
+        </div>
     </div>
-    <div className="container d-flex justify-content-between">
-    <button disabled={this.state.page<=1} type="button" class="btn btn-dark" onClick={this.handlePrevClick}> Previous</button>
-    <button type="button" class="btn btn-dark" onClick={this.handleNextClick}>Next </button>
-    </div>
-    </div>
+    </InfiniteScroll>
+    
+    </>
     )
   }
 
